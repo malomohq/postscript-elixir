@@ -1,5 +1,5 @@
 defmodule Postscript do
-  alias Postscript.{ Response }
+  alias Postscript.{ Config, Operation, Request, Response }
 
   @type http_headers_t ::
           [{ String.t(), String.t() }]
@@ -11,6 +11,14 @@ defmodule Postscript do
           pos_integer
 
   @type response_t ::
-  { :ok, Response.t() } | { :error, Response.t() | any }
+          { :ok, Response.t() } | { :error, Response.t() | any }
 
+  @spec request(Operation.t(), Keyword.t()) :: response_t
+  def request(operation, config) do
+    config = Config.new(config)
+
+    request = Request.new(operation, config)
+
+    Request.send(request, config)
+  end
 end
