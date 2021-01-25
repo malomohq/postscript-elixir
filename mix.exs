@@ -20,6 +20,8 @@ defmodule Postscript.MixProject do
 
   defp deps do
     [
+      { :hackney, "~> 1.17", optional: true },
+
       #
       # dev
       #
