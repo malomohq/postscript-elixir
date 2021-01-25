@@ -7,7 +7,8 @@ defmodule Postscript.MixProject do
       version: "0.0.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      dialyzer: dialyzer()
     ]
   end
 
@@ -26,6 +27,12 @@ defmodule Postscript.MixProject do
       { :dialyxir, "~> 1.0", only: :dev, runtime: false },
 
       { :ex_doc, ">= 0.0.0", only: :dev, runtime: false }
+    ]
+  end
+
+  defp dialyzer do
+    [
+      plt_core_path: "_build/#{Mix.env()}"
     ]
   end
 end
