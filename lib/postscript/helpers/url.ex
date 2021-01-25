@@ -16,7 +16,7 @@ defmodule Postscript.Helpers.Url do
     |> Map.put(:scheme, config.http_protocol)
     |> Map.put(:host, config.http_host)
     |> Map.put(:port, config.http_port)
-    |> Map.put(:path, operation.path)
+    |> Map.put(:path, "#{config.http_path}#{operation.path}")
     |> put_query(operation)
   end
 
