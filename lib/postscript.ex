@@ -1,4 +1,6 @@
 defmodule Postscript do
+  alias Postscript.{ Response }
+
   @type http_headers_t ::
           [{ String.t(), String.t() }]
 
@@ -7,4 +9,8 @@ defmodule Postscript do
 
   @type http_status_code_t ::
           pos_integer
+
+  @type response_t ::
+  { :ok, Response.t() } | { :error, Response.t() | any }
+
 end
