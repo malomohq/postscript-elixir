@@ -22,6 +22,8 @@ defmodule Postscript.MixProject do
     [
       { :hackney, "~> 1.17", optional: true },
 
+      { :jason, "~> 1.2", optional: true },
+
       #
       # dev
       #
