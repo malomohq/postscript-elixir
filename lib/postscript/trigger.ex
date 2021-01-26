@@ -35,10 +35,11 @@ defmodule Postscript.Trigger do
   @doc """
   Fire a trigger for a subscriber.
   """
-  @spec fire(String.t(), String.t()) :: Operation.t()
-  def fire(trigger_id, subscriber_id) do
+  @spec fire(String.t(), String.t(), Keyword.t()) :: Operation.t()
+  def fire(trigger_id, subscriber_id, opts) do
     %Operation{}
     |> Map.put(:method, :post)
+    |> Map.put(:params, opts)
     |> Map.put(:path, "/triggers/#{trigger_id}/subscribers/#{subscriber_id}")
   end
 
