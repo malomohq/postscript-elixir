@@ -9,7 +9,8 @@ defmodule Postscript.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       dialyzer: dialyzer(),
-      elixirc_paths: elixirc_paths(Mix.env())
+      elixirc_paths: elixirc_paths(Mix.env()),
+      package: package()
     ]
   end
 
@@ -48,5 +49,21 @@ defmodule Postscript.MixProject do
 
   defp elixirc_paths(_env) do
     ["lib/"]
+  end
+
+  defp package do
+    %{
+      description: "Elixir client for the Postscript API",
+
+      maintainers: ["Anthony Smith"],
+
+      licenses: ["MIT"],
+
+      links: %{
+        GitHub: "https://github.com/malomohq/postscript-elixir",
+
+        "Made by Malomo - Post-purchase experiences that customers love": "https://gomalomo.com"
+      }
+    }
   end
 end
