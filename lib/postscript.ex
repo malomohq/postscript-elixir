@@ -13,6 +13,9 @@ defmodule Postscript do
   @type response_t ::
           { :ok, Response.t() } | { :error, Response.t() | any }
 
+  @doc """
+  Send a request to the Postscript API.
+  """
   @spec request(Operation.t(), Keyword.t()) :: response_t
   def request(operation, config) do
     config = Config.new(config)
