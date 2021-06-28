@@ -180,6 +180,6 @@ defmodule PostscriptTest do
 
     result = Postscript.request(operation, http_client: Http.Mock, retry: Postscript.Retry.Linear)
 
-    assert ^response_2 = result
+    assert { :ok, %Response{} } = result
   end
 end
