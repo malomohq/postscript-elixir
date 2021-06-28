@@ -166,4 +166,20 @@ defmodule PostscriptTest do
 
     assert ^response = result
   end
+
+  test "retries failed requests" do
+    Http.Mock.start_link()
+
+    response_1 = { :error, :timeout }
+    response_2 = { :ok, @ok_resp }
+
+    Http.Mock.put_response(response_1)
+    Http.Mock.put_response(response_2)
+
+    operation = %Operation{ method: :post, params: [hello: "world"], path: "/fake" }
+
+    result = Postscript.request(operation, http_client: Http.Mock, retry: Postscript.Retry.Linear)
+
+    assert ^response_2 = result
+  end
 end
