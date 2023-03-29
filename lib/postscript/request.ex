@@ -39,6 +39,10 @@ defmodule Postscript.Request do
 
   @spec send(t, Config.t()) :: Postscript.response_t()
   def send(request, config) do
+    private = Map.put(request.private, :attempt, 1)
+
+    request = Map.put(request, :private, private)
+
     request
     |> config.http_client.send(config.http_client_opts)
     |> retry(request, config)
@@ -62,12 +66,13 @@ defmodule Postscript.Request do
   end
 
   defp do_retry(response, request, config) do
-    attempt = Map.get(request.private, :attempt, 0)
+    attempt = Map.get(request.private, :attempt)
 
     max_attempts = Keyword.get(config.retry_opts, :max_attempts, 3)
 
     if max_attempts > attempt do
       private = Map.put(request.private, :attempt, attempt + 1)
+
       request = Map.put(request, :private, private)
 
       seconds_to_wait = config.retry.wait_for(request, config)
