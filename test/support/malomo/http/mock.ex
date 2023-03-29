@@ -23,6 +23,12 @@ defmodule Postscript.Http.Mock do
     GenServer.call(pid, :get_request_body)
   end
 
+  def get_request_count do
+    pid = Process.get(@proc_key)
+
+    GenServer.call(pid, :get_request_count)
+  end
+
   def get_request_headers do
     pid = Process.get(@proc_key)
 
@@ -51,6 +57,7 @@ defmodule Postscript.Http.Mock do
   def send(request, _opts) do
     pid = Process.get(@proc_key)
 
+    :ok = GenServer.call(pid, :increment_request_count)
     :ok = GenServer.call(pid, { :put_request_method, request.method })
     :ok = GenServer.call(pid, { :put_request_url, request.url })
     :ok = GenServer.call(pid, { :put_request_headers, request.headers })
@@ -65,12 +72,17 @@ defmodule Postscript.Http.Mock do
 
   @impl true
   def init(:ok) do
-    { :ok, %{} }
+    { :ok, %{ request_count: 0 } }
   end
 
   @impl true
   def handle_call(:get_request_body, _from, state) do
     { :reply, Map.fetch!(state, :request_body), state }
+  end
+
+  @impl true
+  def handle_call(:get_request_count, _from, state) do
+    { :reply, Map.fetch!(state, :request_count), state }
   end
 
   @impl true
@@ -93,6 +105,11 @@ defmodule Postscript.Http.Mock do
     [h | t] = Map.get(state, :responses, [])
 
     { :reply, h, Map.put(state, :responses, t) }
+  end
+
+  @impl true
+  def handle_call(:increment_request_count, _from, %{ request_count: request_count } = state) do
+    { :reply, :ok, %{ state | request_count: request_count + 1 } }
   end
 
   @impl true

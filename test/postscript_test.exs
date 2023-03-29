@@ -182,4 +182,21 @@ defmodule PostscriptTest do
 
     assert { :ok, %Response{} } = result
   end
+
+  test "retries up to max attempts" do
+    Http.Mock.start_link()
+
+    response = { :error, :timeout }
+
+    Http.Mock.put_response(response)
+    Http.Mock.put_response(response)
+    Http.Mock.put_response(response)
+    Http.Mock.put_response(response)
+
+    operation = %Operation{ method: :post, params: [hello: "world"], path: "/fake" }
+
+    Postscript.request(operation, http_client: Http.Mock, retry: Postscript.Retry.Linear)
+
+    assert Http.Mock.get_request_count() == 3
+  end
 end
