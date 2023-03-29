@@ -14,7 +14,9 @@ jobs:
               with:
                   key: ${{ github.job }}-${{ matrix.elixir }}-${{ matrix.erlang }}-${{ hashFiles('mix.lock') }}
 
-                  path: _build
+                  path: |
+                      _build
+                      deps
 
             - uses: erlef/setup-beam@v1
 
@@ -129,7 +131,9 @@ jobs:
               with:
                   key: ${{ github.job }}-${{ matrix.elixir }}-${{ matrix.erlang }}-${{ hashFiles('mix.lock') }}
 
-                  path: _build
+                  path: |
+                      _build
+                      deps
 
             - uses: erlef/setup-beam@v1
 
