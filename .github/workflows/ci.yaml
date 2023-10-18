@@ -36,18 +36,6 @@ jobs:
         strategy:
             matrix:
                 include:
-                    - elixir: 1.10.x
-
-                      erlang: 21.x
-
-                      os: ubuntu-20.04
-
-                    - elixir: 1.10.x
-
-                      erlang: 22.x
-
-                      os: ubuntu-20.04
-
                     - elixir: 1.11.x
 
                       erlang: 21.x
