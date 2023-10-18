@@ -112,13 +112,19 @@ jobs:
 
                       erlang: 24.x
 
+                      os: ubuntu-22.04
+
                     - elixir: 1.15.x
 
                       erlang: 25.x
 
+                      os: ubuntu-22.04
+
                     - elixir: 1.15.x
 
                       erlang: 26.x
+
+                      os: ubuntu-22.04
 
     test:
         runs-on: ${{ matrix.os }}
@@ -153,18 +159,6 @@ jobs:
         strategy:
             matrix:
                 include:
-                    - elixir: 1.10.x
-
-                      erlang: 21.x
-
-                      os: ubuntu-20.04
-
-                    - elixir: 1.10.x
-
-                      erlang: 22.x
-
-                      os: ubuntu-20.04
-
                     - elixir: 1.11.x
 
                       erlang: 21.x
@@ -234,5 +228,23 @@ jobs:
                     - elixir: 1.14.x
 
                       erlang: 25.x
+
+                      os: ubuntu-22.04
+
+                    - elixir: 1.15.x
+
+                      erlang: 24.x
+
+                      os: ubuntu-22.04
+
+                    - elixir: 1.15.x
+
+                      erlang: 25.x
+
+                      os: ubuntu-22.04
+
+                    - elixir: 1.15.x
+
+                      erlang: 26.x
 
                       os: ubuntu-22.04
