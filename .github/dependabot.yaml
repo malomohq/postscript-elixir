@@ -1,11 +1,11 @@
 version: 2
 
 updates:
-  - package-ecosystem: mix
+    - package-ecosystem: mix
 
-    directory: "/"
+      directory: "/"
 
-    schedule:
-      interval: daily
+      schedule:
+          interval: daily
 
-    target-branch: master
+      target-branch: main
