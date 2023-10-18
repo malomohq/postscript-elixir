@@ -120,6 +120,18 @@ jobs:
 
                       os: ubuntu-22.04
 
+                    - elixir: 1.15.x
+
+                      erlang: 24.x
+
+                    - elixir: 1.15.x
+
+                      erlang: 25.x
+
+                    - elixir: 1.15.x
+
+                      erlang: 26.x
+
     test:
         runs-on: ${{ matrix.os }}
 
