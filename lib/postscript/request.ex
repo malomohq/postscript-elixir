@@ -1,5 +1,7 @@
 defmodule Postscript.Request do
-  alias Postscript.{ Config, Helpers, Operation, Response }
+  require Logger
+
+  alias Postscript.{Config, Helpers, Operation, Response}
 
   @type t ::
           %__MODULE__{
@@ -10,20 +12,18 @@ defmodule Postscript.Request do
             url: String.t()
           }
 
-  defstruct [
-    body: nil,
-    headers: [],
-    method: nil,
-    private: %{},
-    url: nil
-  ]
+  defstruct body: nil,
+            headers: [],
+            method: nil,
+            private: %{},
+            url: nil
 
   @spec new(Operation.t(), Config.t()) :: t
   def new(operation, config) do
     body = Helpers.Body.encode!(operation, config)
 
     headers = []
-    headers = headers ++ [{ "content-type", "application/json" }]
+    headers = headers ++ [{"content-type", "application/json"}]
     headers = headers ++ config.http_headers
 
     url = Helpers.Url.to_string(operation, config)
@@ -45,19 +45,47 @@ defmodule Postscript.Request do
 
     request
     |> config.http_client.send(config.http_client_opts)
+    |> maybe_validate_json_decode(config)
     |> retry(request, config)
     |> finish(config)
   end
 
-  defp retry(response, _request, %_{ retry: retry }) when is_nil(retry) or retry == false do
+  defp maybe_validate_json_decode({:ok, %{body: body, headers: headers}} = response, config) do
+    headers
+    |> Enum.reduce(%{}, fn {k, v}, acc -> Map.put(acc, String.downcase(k), v) end)
+    |> case do
+      %{"content-type" => "application/json"} ->
+        case config.json_codec.decode(body) do
+          {:ok, _decoded} ->
+            response
+
+          {:error, decode_error} ->
+            Logger.warning([
+              inspect(__MODULE__),
+              " received an invalid JSON response ",
+              inspect(body)
+            ])
+
+            {:error, decode_error}
+        end
+
+      _otherwise ->
+        response
+    end
+  end
+
+  defp maybe_validate_json_decode(response, _config), do: response
+
+  defp retry(response, _request, %_{retry: retry}) when is_nil(retry) or retry == false do
     response
   end
 
-  defp retry({ :ok, %{ status_code: status_code } } = response, request, config) when status_code >= 500 do
+  defp retry({:ok, %{status_code: status_code}} = response, request, config)
+       when status_code >= 500 do
     do_retry(response, request, config)
   end
 
-  defp retry({ :error, _ } = response, request, config) do
+  defp retry({:error, _} = response, request, config) do
     do_retry(response, request, config)
   end
 
@@ -89,10 +117,12 @@ defmodule Postscript.Request do
 
   defp finish(response, config) do
     case response do
-      { :ok, %{ status_code: status_code } = response } when status_code >= 400 ->
-        { :error, Response.new(response, config) }
-      { :ok, %{ status_code: status_code } = response } when status_code >= 200 ->
-        { :ok, Response.new(response, config) }
+      {:ok, %{status_code: status_code} = response} when status_code >= 400 ->
+        {:error, Response.new(response, config)}
+
+      {:ok, %{status_code: status_code} = response} when status_code >= 200 ->
+        {:ok, Response.new(response, config)}
+
       otherwise ->
         otherwise
     end

@@ -1,5 +1,5 @@
 defmodule Postscript.Response do
-  alias Postscript.{ Config, Http }
+  alias Postscript.{Config, Http}
 
   @type t ::
           %__MODULE__{
@@ -15,7 +15,11 @@ defmodule Postscript.Response do
     body =
       response
       |> Map.get(:body)
-      |> config.json_codec.decode!()
+      |> config.json_codec.decode()
+      |> case do
+        {:ok, json} -> json
+        {:error, _decode_error} -> Map.get(response, :body)
+      end
 
     %__MODULE__{}
     |> Map.put(:body, body)
