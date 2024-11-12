@@ -1,6 +1,4 @@
 defmodule Postscript.Request do
-  require Logger
-
   alias Postscript.{Config, Helpers, Operation, Response}
 
   @type t ::
