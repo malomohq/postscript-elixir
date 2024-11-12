@@ -1,8 +1,6 @@
 defmodule PostscriptTest do
   use ExUnit.Case, async: true
 
-  import ExUnit.CaptureLog, only: [with_log: 2]
-
   alias Postscript.{Http, Operation, Response}
 
   @ok_resp %{body: "{\"ok\":true}", headers: [], status_code: 200}
