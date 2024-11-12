@@ -45,36 +45,9 @@ defmodule Postscript.Request do
 
     request
     |> config.http_client.send(config.http_client_opts)
-    |> maybe_validate_json_decode(config)
     |> retry(request, config)
     |> finish(config)
   end
-
-  defp maybe_validate_json_decode({:ok, %{body: body, headers: headers}} = response, config) do
-    headers
-    |> Enum.reduce(%{}, fn {k, v}, acc -> Map.put(acc, String.downcase(k), v) end)
-    |> case do
-      %{"content-type" => "application/json"} ->
-        case config.json_codec.decode(body) do
-          {:ok, _decoded} ->
-            response
-
-          {:error, decode_error} ->
-            Logger.warning([
-              inspect(__MODULE__),
-              " received an invalid JSON response ",
-              inspect(body)
-            ])
-
-            {:error, decode_error}
-        end
-
-      _otherwise ->
-        response
-    end
-  end
-
-  defp maybe_validate_json_decode(response, _config), do: response
 
   defp retry(response, _request, %_{retry: retry}) when is_nil(retry) or retry == false do
     response

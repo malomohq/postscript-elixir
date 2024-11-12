@@ -9,12 +9,6 @@ defmodule PostscriptTest do
 
   @not_ok_resp %{body: "{\"ok\":false}", headers: [], status_code: 400}
 
-  @not_json_resp %{
-    body: "not json",
-    headers: [{"content-type", "application/json"}],
-    status_code: 200
-  }
-
   test "sends the proper HTTP method" do
     Http.Mock.start_link()
 
@@ -164,26 +158,6 @@ defmodule PostscriptTest do
     result = Postscript.request(operation, http_client: Http.Mock)
 
     assert {:error, %Response{}} = result
-  end
-
-  test "logs warning and returns :error when response is not valid JSON" do
-    Http.Mock.start_link()
-
-    response = {:ok, @not_json_resp}
-
-    Http.Mock.put_response(response)
-
-    operation = %Operation{method: :post, params: [hello: "world"], path: "/fake"}
-
-    assert {result, log} =
-             with_log([level: :warning], fn ->
-               Postscript.request(operation, http_client: Http.Mock)
-             end)
-
-    assert {:error, _error} = result
-
-    assert log =~ "invalid JSON response"
-    assert log =~ "\"not json\""
   end
 
   test "passes the response through when unrecognized" do
