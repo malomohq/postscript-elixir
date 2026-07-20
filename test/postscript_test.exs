@@ -5,6 +5,12 @@ defmodule PostscriptTest do
 
   @ok_resp %{body: "{\"ok\":true}", headers: [], status_code: 200}
 
+  @accepted_resp %{
+    body: "{\"event_ids\":[\"evt_123\"]}",
+    headers: [],
+    status_code: 202
+  }
+
   @not_ok_resp %{body: "{\"ok\":false}", headers: [], status_code: 400}
 
   test "sends the proper HTTP method" do
@@ -61,6 +67,25 @@ defmodule PostscriptTest do
     Postscript.request(operation, http_client: Http.Mock)
 
     assert "https://api.postscript.io/v1/fake" == Http.Mock.get_request_url()
+  end
+
+  test "uses operation http_path over the default config http_path" do
+    Http.Mock.start_link()
+
+    response = {:ok, @accepted_resp}
+
+    Http.Mock.put_response(response)
+
+    operation = %Operation{
+      http_path: "/api/v2",
+      method: :post,
+      params: [type: "malomo_shipment_created"],
+      path: "/events"
+    }
+
+    Postscript.request(operation, http_client: Http.Mock)
+
+    assert "https://api.postscript.io/api/v2/events" == Http.Mock.get_request_url()
   end
 
   test "sends the proper HTTP headers" do
@@ -142,6 +167,25 @@ defmodule PostscriptTest do
     result = Postscript.request(operation, http_client: Http.Mock)
 
     assert {:ok, %Response{}} = result
+  end
+
+  test "returns :ok for 202 Accepted event responses" do
+    Http.Mock.start_link()
+
+    response = {:ok, @accepted_resp}
+
+    Http.Mock.put_response(response)
+
+    operation = %Operation{
+      http_path: "/api/v2",
+      method: :post,
+      params: [type: "malomo_shipment_created"],
+      path: "/events"
+    }
+
+    result = Postscript.request(operation, http_client: Http.Mock)
+
+    assert {:ok, %Response{body: %{"event_ids" => ["evt_123"]}, status_code: 202}} = result
   end
 
   test "returns :error when the request is not successful" do

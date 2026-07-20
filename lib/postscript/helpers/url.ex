@@ -12,11 +12,13 @@ defmodule Postscript.Helpers.Url do
 
   @spec to_uri(Operation.t(), Config.t()) :: URI.t()
   def to_uri(operation, config) do
+    http_path = operation.http_path || config.http_path
+
     %URI{}
     |> Map.put(:scheme, config.http_protocol)
     |> Map.put(:host, config.http_host)
     |> Map.put(:port, config.http_port)
-    |> Map.put(:path, "#{config.http_path}#{operation.path}")
+    |> Map.put(:path, "#{http_path}#{operation.path}")
     |> put_query(operation)
   end
 
