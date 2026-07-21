@@ -4,7 +4,7 @@ defmodule Postscript.MixProject do
   def project do
     [
       app: :postscript,
-      version: "1.0.3",
+      version: "1.1.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -53,9 +53,14 @@ defmodule Postscript.MixProject do
 
   defp package do
     %{
+      # Private Hex.org organization package. Publish with a Malomo org member
+      # account after creating the org at https://hex.pm/dashboard (paid seats
+      # required for private packages). Consumers must set organization: "malomo".
+      organization: "malomo",
+
       description: "Elixir client for the Postscript API",
 
-      maintainers: ["Anthony Smith"],
+      maintainers: ["Jason Cartwright"],
 
       licenses: ["MIT"],
 

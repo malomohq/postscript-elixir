@@ -2,17 +2,35 @@
 
 ## Installation
 
-`postscript` is published on Hex. Add it to your list of dependencies in `mix.exs`:
+`postscript` is published as a **private** package under the Malomo Hex
+organization. Add it to your list of dependencies in `mix.exs`:
 
 ```elixir
 defp deps do
-  { :postscript, "1.0.0" }
+  [
+    {:postscript, "~> 1.1", organization: "malomo"}
+  ]
 end
 ```
 
-`postscript` require you to provide an HTTP client and JSON codec. `hackney` and
-`jason` are used by default. If you wish to use these defaults you will also
-need to specify `hackney` and `jason` as dependencies.
+Local apps need Hex auth for the org (once per machine):
+
+```bash
+mix hex.user auth
+# or, for CI / build servers:
+mix hex.organization auth malomo --key $HEX_MALOMO_KEY
+```
+
+`postscript` requires you to provide an HTTP client and JSON codec. `hackney`
+and `jason` are used by default. If you wish to use these defaults you will
+also need to specify `hackney` and `jason` as dependencies.
+
+### Publishing (Malomo maintainers)
+
+1. Create the Hex organization `malomo` at [hex.pm/dashboard](https://hex.pm/dashboard) if it does not exist (private packages require a paid org plan).
+2. Authenticate as an org member: `mix hex.user auth`
+3. From this repo: `mix hex.publish` (the `organization: "malomo"` package config targets the private repo).
+4. Generate a CI key with `mix hex.organization key malomo generate` and store it as a secret for consumer apps.
 
 ## Usage
 
@@ -26,7 +44,32 @@ a request that can be sent to the Postscript API using the
 Postscript.Keyword.list() |> Postscript.request(api_key: "...")
 ```
 
-For details on individual resource types [please see our document on HexDocs](https://hexdocs.pm/postscript/1.0.0/api-reference.html).
+### Custom events (`/api/v2/events`)
+
+`Postscript.Event.create/1` builds a request for the Custom Events API. The
+operation sets `http_path` to `"/api/v2"` automatically, so you do not need to
+override the default `/v1` base path:
+
+```elixir
+operation =
+  Postscript.Event.create(
+    type: "malomo_shipment_created",
+    email: "jason@gomalomo.com",
+    properties: %{"order_id" => "...", "order_number" => "..."},
+    external_id: "seed:account-id:malomo_shipment_created"
+  )
+
+Postscript.request(operation,
+  api_key: partner_key,
+  shop_token: shop_key
+)
+```
+
+Existing `/v1` APIs (triggers, subscribers, keywords) are unchanged and continue
+to use the default `http_path: "/v1"`.
+
+For details on individual resource types, see the HexDocs for the Malomo org
+package after publishing (private docs require org auth).
 
 ## Configuration
 
@@ -43,8 +86,9 @@ Possible configuration values are provided below:
 * `:http_host` - host used to send requests to. Defaults to `api.gopostscript.com`.
 * `:http_headers` - additional HTTP headers to send as part of the request.
   Defaults to `[]`.
-* `:http_path` - path appended to the `:http_post` when sending a request.
-  Defaults to `/v1`.
+* `:http_path` - path prepended to the operation path when sending a request.
+  Defaults to `/v1`. Ignored when the operation sets its own `http_path`
+  (as `Postscript.Event` does with `/api/v2`).
 * `:http_port` - HTTP port used when sending a request
 * `:http_protocol` - HTTP protocol used when sending a request. Defaults to
   `https`.
